@@ -1,0 +1,42 @@
+﻿/* Query 1- query used for first insight*/
+SELECT film.title AS film_title, category.name AS category_name, COUNT(*) AS rental_count
+FROM category 
+JOIN film_category f
+ON category.category_id = f.category_id
+JOIN inventory i
+ON f.category_id = i.inventory_id
+JOIN rental r
+ON i.inventory_id = r.rental_id
+JOIN film 
+ON r.rental_id = film.film_id
+GROUP BY film.title, category.name;
+
+
+
+
+/* Query 2- query used for second insight*/
+SELECT film.title AS title, category.name AS name, COUNT(*) AS rental_duration, NTILE(4) OVER (ORDER BY rental_duration DESC) AS  standard_quartile
+FROM category 
+JOIN film_category f
+ON category.category_id = f.category_id
+JOIN film 
+ON f.category_id = film.film_id
+GROUP BY title, name, film.rental_duration;
+
+
+/* Query 3- query used for third insight*/
+SELECT category.name AS category,  NTILE(4) OVER (ORDER BY rental_duration DESC) AS  standard_quartile, COUNT(*) AS count
+FROM category 
+JOIN film f
+ON category.category_id = f.film_id
+GROUP BY name, f.rental_duration; 
+
+
+/* Query 4- query used for fourth insight*/
+SELECT EXTRACT(month FROM rental_date) AS rental_month, EXTRACT(year FROM rental_date) AS rental_year, Store_id,COUNT(rental_duration) AS count_rentals
+FROM rental 
+JOIN Inventory
+ON rental.rental_id = inventory.inventory_id
+JOIN film f
+ON inventory.inventory_id = f.film_id
+GROUP BY rental_month, rental_year, store_id;
